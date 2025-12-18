@@ -10,6 +10,8 @@
 #include <sys/un.h>
 
 #define SOCKET_NAME "/tmp/unix_client.sock"
+#define HOST_NAME "localhost"
+#define TCP_PORT 9090
 
 void error(const char *msg)
 {
@@ -17,7 +19,7 @@ void error(const char *msg)
 	exit(0);
 }
 
-int main(int argc, char *argv[])
+int main()
 {
 	int sockfd, portno, n;
 	struct sockaddr_in serv_addr;
@@ -27,15 +29,12 @@ int main(int argc, char *argv[])
 	struct sockaddr_un unix_name;
 
 	char buffer[256];
-	if (argc < 3) {
-		fprintf(stderr,"usage %s hostname port\n", argv[0]);
-		exit(0);
-	}
-	portno = atoi(argv[2]);
+
+	//portno
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0) 
 		error("ERROR opening socket");
-	server = gethostbyname(argv[1]);
+	server = gethostbyname(HOST_NAME);
 	if (server == NULL) {
 		fprintf(stderr,"ERROR, no such host\n");
 		exit(0);
@@ -43,7 +42,7 @@ int main(int argc, char *argv[])
 	bzero((char *) &serv_addr, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
 	memcpy(&serv_addr.sin_addr.s_addr, server->h_addr_list[0], server->h_length);
-	serv_addr.sin_port = htons(portno);
+	serv_addr.sin_port = htons(TCP_PORT);
 	if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
 		error("ERROR connecting");
 
@@ -67,6 +66,8 @@ int main(int argc, char *argv[])
 
 	fd_set readfds;
 	int max_fd;
+
+	printf("This is client proxy terminal!\n");
 	
 	while (1) {
 		FD_ZERO(&readfds);
@@ -92,6 +93,7 @@ int main(int argc, char *argv[])
 				//error("ERROR writing to socket");
 			bzero(buffer,256);
 			n = read(sockfd,buffer,255);
+			printf("%s\n", buffer);
 			write(unix_client_sock, buffer, strlen(buffer));
 		}
 

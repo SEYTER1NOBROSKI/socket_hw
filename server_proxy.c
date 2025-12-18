@@ -26,7 +26,7 @@ int main() {
 	int unix_listen_sock, unix_client_sock;
 	struct sockaddr_un unix_name;
 
-	char buffer[1024];
+	char buffer[256];
 	int n;
 	int opt = 1;
 
@@ -72,6 +72,8 @@ int main() {
 
 	fd_set readfds; // sockets we are listening
 	int max_fd;
+
+	printf("This is server proxy terminal!\n");
 
 	while (1) {
 		FD_ZERO(&readfds);
