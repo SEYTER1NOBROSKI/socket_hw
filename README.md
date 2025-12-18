@@ -43,6 +43,10 @@ Example
 ```bash
 make server
 ```
+To delete all executables from directory use:
+```bash
+make clean
+```
 
 ## Running
 
